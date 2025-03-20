@@ -12,9 +12,9 @@ class Story(
     val by: String,
     val descendants: Int,
     val id: String,
-    val kids: List<String>,
+    val kids: List<String> = emptyList(),
     val score: Int,
-    val time: Int,
+    val time: Long,
     val title: String,
     val url: String? = null,
 ) : ApiItem
@@ -22,10 +22,14 @@ class Story(
 @Serializable
 @SerialName("comment")
 class Comment(
-    val by: String,
+    val by: String = "",
     val id: String,
-    val kids: List<String>,
+    val kids: List<String> = emptyList(),
     val parent: String,
-    val text: String,
-    val time: Int,
+    val text: String = "",
+    val time: Long,
 ) : ApiItem
+
+@Serializable
+@SerialName("job")
+class Job : ApiItem

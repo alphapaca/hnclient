@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.sqldelight)
 }
 
 android {
@@ -11,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.hnclient"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -40,16 +41,27 @@ android {
     }
 }
 
+sqldelight {
+    databases {
+        create("Database") {
+            packageName.set("com.example.hnclient")
+        }
+    }
+}
+
 dependencies {
     // our libs
     implementation(libs.ktor.client.core) // Ktor клиент
     implementation(libs.ktor.client.android) // Engine для Android
     implementation(libs.ktor.client.logging) // Логгирование для ktor
-    implementation(libs.kotlinx.serialization.json) // Cериализациz
+    implementation(libs.kotlinx.serialization.json) // Cериализация
     implementation(libs.ktor.serialization.kotlinx.json) // Плагин kotlinx.serialization для ktor
     implementation(libs.ktor.client.content.negotiation) // Плагин сериализации для ktor
     implementation(libs.androidx.lifecycle.viewmodel.compose) // Viewmodel для Compose
     implementation(libs.androidx.navigation.compose) // Навигация
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.sqldelight.android)
+    implementation(libs.sqldelight.coroutines)
 
     // default libs
     implementation(libs.androidx.core.ktx)
@@ -57,6 +69,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.foundation)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
