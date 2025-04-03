@@ -17,9 +17,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,7 +35,7 @@ data object SettingsScreenRoute
 
 @Composable
 fun SettingsScreen(settingsViewModel: SettingsViewModel) {
-    val themeKind by settingsViewModel.themeKindState.collectAsState()
+    val themeKind by settingsViewModel.themeKindState.collectAsState(ThemeKind.System)
     ListItem(
         modifier = Modifier.fillMaxWidth(),
         headlineContent = { Text("Тема") },
@@ -55,11 +63,19 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel) {
     )
 }
 
-class SettingsViewModel : ViewModel() {
-    val themeKindState = MutableStateFlow(ThemeKind.System)
+class SettingsViewModel(
+    private val dataStore: DataStore<Preferences>,
+) : ViewModel() {
+    private val themeKindKey = stringPreferencesKey("themeKind")
+    val themeKindState: Flow<ThemeKind> = dataStore.data
+        .map { preferences -> preferences[themeKindKey]?.let(ThemeKind::valueOf) ?: ThemeKind.System }
 
     fun updateTheme(newTheme: ThemeKind) {
-        themeKindState.value = newTheme
+        viewModelScope.launch {
+            dataStore.edit { mutablePreferences ->
+                mutablePreferences[themeKindKey] = newTheme.name
+            }
+        }
     }
 }
 

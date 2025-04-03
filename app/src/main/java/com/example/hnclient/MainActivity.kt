@@ -1,5 +1,6 @@
 package com.example.hnclient
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -29,13 +33,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.hnclient.ui.theme.HnclientTheme
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val settingsViewModel = viewModel<SettingsViewModel>()
-            val themeKind by settingsViewModel.themeKindState.collectAsState()
+            val settingsViewModel = viewModel<SettingsViewModel> {
+                SettingsViewModel(this@MainActivity.applicationContext.dataStore)
+            }
+            val themeKind by settingsViewModel.themeKindState.collectAsState(ThemeKind.System)
             HnclientTheme(darkTheme = when(themeKind) {
                 ThemeKind.Light -> false
                 ThemeKind.Dark -> true
