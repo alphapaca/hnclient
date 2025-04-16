@@ -59,9 +59,10 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation) // Плагин сериализации для ktor
     implementation(libs.androidx.lifecycle.viewmodel.compose) // Viewmodel для Compose
     implementation(libs.androidx.navigation.compose) // Навигация
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.sqldelight.android)
-    implementation(libs.sqldelight.coroutines)
+    implementation(libs.androidx.datastore.preferences) // хранилище ключ-значени
+    implementation(libs.sqldelight.android) // android драйвер для фреймворка баз данных
+    implementation(libs.sqldelight.coroutines) // корутины для фреймворка баз данных
+    implementation(libs.koin.androidx.compose) // dependency injection
 
     // default libs
     implementation(libs.androidx.core.ktx)

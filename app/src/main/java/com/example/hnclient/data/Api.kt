@@ -1,4 +1,4 @@
-package com.example.hnclient
+package com.example.hnclient.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -10,10 +10,10 @@ sealed interface ApiItem
 @SerialName("story")
 class Story(
     val by: String,
-    val descendants: Int,
+    val descendants: Long,
     val id: String,
     val kids: List<String> = emptyList(),
-    val score: Int,
+    val score: Long,
     val time: Long,
     val title: String,
     val url: String? = null,

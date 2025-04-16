@@ -31,6 +31,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.hnclient.ui.news.NewsScreen
+import com.example.hnclient.ui.news.NewsScreenRoute
+import com.example.hnclient.ui.settings.SettingsScreen
+import com.example.hnclient.ui.settings.SettingsScreenRoute
+import com.example.hnclient.ui.settings.SettingsViewModel
+import com.example.hnclient.ui.settings.ThemeKind
+import com.example.hnclient.ui.story.StoryScreen
+import com.example.hnclient.ui.story.StoryScreenRoute
 import com.example.hnclient.ui.theme.HnclientTheme
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -84,11 +92,7 @@ fun RootScreen(settingsViewModel: SettingsViewModel) {
         NavHost(navController, NewsScreenRoute, Modifier.padding(innerPaddings)) {
             composable<NewsScreenRoute> {
                 NewsScreen { id ->
-                    navController.navigate(
-                        StoryScreenRoute(
-                            id
-                        )
-                    )
+                    navController.navigate(StoryScreenRoute(id))
                 }
             }
             composable<StoryScreenRoute> { backStackEntry ->

@@ -1,0 +1,21 @@
+CREATE TABLE storiesList (
+    by TEXT NOT NULL,
+    descendants INTEGER NOT NULL,
+    id TEXT NOT NULL PRIMARY KEY,
+    kids TEXT NOT NULL,
+    score INTEGER NOT NULL,
+    time INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    url TEXT
+);
+
+getStories:
+SELECT * FROM storiesList
+ORDER BY time DESC;
+
+clearStories:
+DELETE FROM storiesList;
+
+insert:
+INSERT INTO storiesList (by, descendants, id, kids, score, time, title, url)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
