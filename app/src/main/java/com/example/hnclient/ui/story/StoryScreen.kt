@@ -18,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -40,10 +39,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.hnclient.data.Comment
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.example.hnclient.data.HnRemote
+import com.example.hnclient.data.HnRepository
+import com.example.hnclient.data.StoriesDao
 import com.example.hnclient.data.Story
 import com.example.hnclient.formatTime
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 class StoryScreenRoute(val id: String)
@@ -51,7 +57,24 @@ class StoryScreenRoute(val id: String)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StoryScreen(id: String, back: () -> Unit) {
-    val viewModel = viewModel<StoryViewModel>()
+    val context = LocalContext.current.applicationContext
+    val viewModel = viewModel<StoryViewModel> {
+        val database = Database(AndroidSqliteDriver(Database.Schema, context, "app.db"))
+        val httpClient = HttpClient {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                })
+            }
+        }
+        StoryViewModel(
+            HnRepository(
+                HnRemote(httpClient),
+                StoriesDao(database.storiesQueries, Json),
+            )
+        )
+    }
 
     LaunchedEffect(id) {
         viewModel.loadStory(id)

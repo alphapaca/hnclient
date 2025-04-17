@@ -23,9 +23,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.example.hnclient.Database
 import com.example.hnclient.R
+import com.example.hnclient.data.HnRemote
+import com.example.hnclient.data.HnRepository
 import com.example.hnclient.data.StoriesDao
 import com.example.hnclient.data.Story
 import com.example.hnclient.formatTime
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -38,7 +43,20 @@ fun NewsScreen(openPost: (String) -> Unit) {
     val context = LocalContext.current.applicationContext
     val viewModel = viewModel<NewsViewModel> {
         val database = Database(AndroidSqliteDriver(Database.Schema, context, "app.db"))
-        NewsViewModel(StoriesDao(database.storiesQueries, Json))
+        val httpClient = HttpClient {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                })
+            }
+        }
+        NewsViewModel(
+            HnRepository(
+                HnRemote(httpClient),
+                StoriesDao(database.storiesQueries, Json),
+            )
+        )
     }
     val newsListState by viewModel.newsListState.collectAsState()
     PullToRefreshBox(

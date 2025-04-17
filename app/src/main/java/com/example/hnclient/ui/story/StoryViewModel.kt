@@ -3,6 +3,7 @@ package com.example.hnclient.ui.story
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hnclient.data.Comment
+import com.example.hnclient.data.HnRepository
 import com.example.hnclient.data.StoriesDao
 import com.example.hnclient.data.Story
 import io.ktor.client.HttpClient
@@ -17,28 +18,18 @@ import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-class StoryViewModel : ViewModel() {
+class StoryViewModel(
+    private val repository: HnRepository,
+) : ViewModel() {
     val storyState = MutableStateFlow<StoryState>(StoryState.Loading)
-
-    private val client = HttpClient {
-        install(ContentNegotiation) {
-            json(Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-            })
-        }
-    }
 
     fun loadStory(id: String) {
         viewModelScope.launch {
-            val story = client.get("https://hacker-news.firebaseio.com/v0/item/$id.json")
-                .body<Story>()
+            val story = repository.getStory(id)
             val comments = story.kids
                 .map { kidId ->
                     async {
-                        val comment =
-                            client.get("https://hacker-news.firebaseio.com/v0/item/$kidId.json")
-                                .body<Comment>()
+                        val comment = repository.getComment(kidId)
                         CommentsListItem(
                             comment = comment,
                             state = if (comment.kids.isEmpty()) CommentState.WithoutChildren else CommentState.Collapsed,
@@ -85,9 +76,7 @@ class StoryViewModel : ViewModel() {
             val childComments = comment.comment.kids
                 .map { kidId ->
                     async {
-                        val childComment =
-                            client.get("https://hacker-news.firebaseio.com/v0/item/$kidId.json")
-                                .body<Comment>()
+                        val childComment = repository.getComment(kidId)
                         CommentsListItem(
                             comment = childComment,
                             state = if (childComment.kids.isEmpty()) CommentState.WithoutChildren else CommentState.Collapsed,
